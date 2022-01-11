@@ -1,0 +1,9 @@
+name: QueueCommands
+version: '${project.version}'
+main: cykuta.queuecommands.QueueCommands
+api-version: 1.17
+authors: [ cykuta ]
+commands:
+  qc:
+    permission: qc.add
+    description: main command
