@@ -1,21 +1,29 @@
 package cykuta.queuecommands;
 
-import Utils.Chat;
 import cykuta.queuecommands.commands.qc;
+import cykuta.queuecommands.config.File;
+import cykuta.queuecommands.config.Files;
+import cykuta.queuecommands.utils.Chat;
+import cykuta.queuecommands.utils.Time;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-
 public final class QueueCommands extends JavaPlugin {
-    public String cfgPath;
+    private static QueueCommands plugin;
+    private static File dataFile;
+    private static File configFile;
 
     @Override
     public void onEnable() {
-        Bukkit.getConsoleSender().sendMessage(Chat.color("&bQueueCommands &f| &aLoaded"));
-        LoadCfg();
-        this.getCommand("qc").setExecutor(new qc(this));
-        new Queue(this).runTaskTimer(this, 0L, 6000L);//6000
+        plugin = this;
+        dataFile = Files.DATA.getFile();
+        configFile = Files.CONFIG.getFile();
+
+        Chat.ServerConsoleMessage("&bQueueCommands &f| &aLoaded");
+        FileConfiguration config = configFile.getFileConfiguration();
+        this.getCommand("qc").setExecutor(new qc());
+        new QueueTimer().runTaskTimer(this, 0L, Time.secondsToTicks(config.getLong("check-interval")));
     }
 
     @Override
@@ -23,12 +31,15 @@ public final class QueueCommands extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(Chat.color("&bQueueCommands &f| &cDisabled"));
     }
 
-    public void LoadCfg(){
-        File config = new File(this.getDataFolder(),"config.yml");
-        cfgPath = config.getPath();
-        if(!config.exists()){
-            this.getConfig().options().copyDefaults(true);
-            saveConfig();
-        }
+    public static QueueCommands getPlugin() {
+        return plugin;
+    }
+
+    public static File getDataFile() {
+        return dataFile;
+    }
+
+    public static File getConfigFile() {
+        return configFile;
     }
 }

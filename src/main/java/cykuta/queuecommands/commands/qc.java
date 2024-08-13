@@ -1,7 +1,8 @@
 package cykuta.queuecommands.commands;
 
-import Utils.Chat;
 import cykuta.queuecommands.QueueCommands;
+import cykuta.queuecommands.config.File;
+import cykuta.queuecommands.utils.Chat;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -11,23 +12,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class qc implements CommandExecutor {
-    public QueueCommands plugin;
-
-    public qc(QueueCommands plugin) {
-        this.plugin = plugin;
-    };
-
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        // /qc add user /comando
-        if(!sender.hasPermission("qc.add") || !sender.isOp()) return false;
-        FileConfiguration config = plugin.getConfig();
-        if (args.length < 3){
-            sender.sendMessage(Chat.color("&cUse: /qc add <username> <command...>"));
+        // /qc add user /command
+        if(!sender.hasPermission("qc.add") || !sender.isOp()) {
+            sender.sendMessage(Chat.color("&cYou do not have permission to use this command"));
             return false;
         }
-        if (!("add".equals(args[0]))) {
-            sender.sendMessage(Chat.color("&cUse: /qc add <username> <command...>"));
+
+        File dataFile = QueueCommands.getDataFile();
+        FileConfiguration data = dataFile.getFileConfiguration();
+
+        if (args.length < 3 || !(args[0].equals("add")) ){
+            sender.sendMessage(Chat.color("&cUse: /qc add <username> [command...]"));
             return false;
         }
 
@@ -36,14 +33,14 @@ public class qc implements CommandExecutor {
         for (int i = 2; i < args.length; i++) cmd += args[i] + " ";
         cmd = cmd.trim();
 
-        if (config.contains("Data." + args[1])) {
-            commands = config.getStringList("Data." + args[1]);
+        if (data.contains("Data." + args[1])) {
+            commands = data.getStringList("Data." + args[1]);
         } else {
             commands = new ArrayList<>();
         }
         commands.add(cmd);
-        config.set("Data." + args[1], commands);
-        plugin.saveConfig();
+        data.set("Data." + args[1], commands);
+        dataFile.save();
         sender.sendMessage(Chat.color("&aCommand added to queue successfully"));
         return true;
     }

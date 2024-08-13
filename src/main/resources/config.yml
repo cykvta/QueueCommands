@@ -1,0 +1,5 @@
+# Check commands every x seconds (integer)
+check-interval: 60
+
+# Announce commands checks in the console (boolean)
+announce-check: true
